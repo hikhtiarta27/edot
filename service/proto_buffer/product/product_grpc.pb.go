@@ -23,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProductServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*Product, error)
-	UpdateStock(ctx context.Context, in *UpdateStockRequest, opts ...grpc.CallOption) (*Product, error)
 }
 
 type productServiceClient struct {
@@ -43,21 +42,11 @@ func (c *productServiceClient) Get(ctx context.Context, in *GetRequest, opts ...
 	return out, nil
 }
 
-func (c *productServiceClient) UpdateStock(ctx context.Context, in *UpdateStockRequest, opts ...grpc.CallOption) (*Product, error) {
-	out := new(Product)
-	err := c.cc.Invoke(ctx, "/product.ProductService/UpdateStock", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
 type ProductServiceServer interface {
 	Get(context.Context, *GetRequest) (*Product, error)
-	UpdateStock(context.Context, *UpdateStockRequest) (*Product, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -67,9 +56,6 @@ type UnimplementedProductServiceServer struct {
 
 func (UnimplementedProductServiceServer) Get(context.Context, *GetRequest) (*Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedProductServiceServer) UpdateStock(context.Context, *UpdateStockRequest) (*Product, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateStock not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
@@ -102,24 +88,6 @@ func _ProductService_Get_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProductService_UpdateStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateStockRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProductServiceServer).UpdateStock(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/product.ProductService/UpdateStock",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductServiceServer).UpdateStock(ctx, req.(*UpdateStockRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -130,10 +98,6 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _ProductService_Get_Handler,
-		},
-		{
-			MethodName: "UpdateStock",
-			Handler:    _ProductService_UpdateStock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

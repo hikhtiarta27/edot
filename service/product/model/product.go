@@ -24,14 +24,12 @@ var ErrInvalidID = &shared.Error{
 }
 
 type Product struct {
-	ID             ulid.ULID
-	Slug           string
-	Name           string
-	AvailableStock uint64
-	ReservedStock  uint64
-	CreatedAt      time.Time
-	UpdatedAt      *time.Time
-	DeletedAt      gorm.DeletedAt
+	ID        ulid.ULID
+	Slug      string
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt *time.Time
+	DeletedAt gorm.DeletedAt
 }
 
 func (Product) TableName() string {
@@ -42,10 +40,8 @@ func NewProduct(
 	name string,
 ) (*Product, error) {
 	instance := &Product{
-		ID:             ulid.Make(),
-		Name:           strings.TrimSpace(name),
-		AvailableStock: 0,
-		ReservedStock:  0,
+		ID:   ulid.Make(),
+		Name: strings.TrimSpace(name),
 	}
 
 	if err := instance.SetSlug(name); err != nil {

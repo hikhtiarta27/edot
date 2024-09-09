@@ -3,6 +3,7 @@ package registry
 import (
 	"product/infra"
 	"product/repository"
+	"proto_buffer/stock"
 	"sync"
 )
 
@@ -20,4 +21,21 @@ func LoadProductRepo() repository.Product {
 	})
 
 	return productRepo
+}
+
+var (
+	stockRepoOnce sync.Once
+	stockRepo     repository.Stock
+)
+
+func LoadStockRepo() repository.Stock {
+	stockRepoOnce.Do(func() {
+		stockRepo = repository.NewStock(
+			stock.NewStockServiceClient(
+				infra.LoadWarehouseService(),
+			),
+		)
+	})
+
+	return stockRepo
 }

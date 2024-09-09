@@ -28,6 +28,9 @@ type Config struct {
 		Port int    `mapstructure:"port"`
 		Key  string `mapstructure:"key"`
 	} `mapstructure:"meilisearch"`
+	Service struct {
+		Warehouse string `mapstructure:"warehouse"`
+	} `mapstructure:"service"`
 }
 
 var (

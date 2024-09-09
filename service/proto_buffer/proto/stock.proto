@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package stock;
+
+option go_package = "proto_buffer/stock";
+
+service StockService {
+  rpc Get(GetRequest) returns (GetResponse) {}
+}
+
+message GetRequest {
+  repeated string product_id = 1;
+}
+
+message Stock {
+  string id = 1;
+  string product_id = 2;
+  uint64 available_stock = 3;
+  uint64 reserved_stock = 4;
+  int64 created_at = 5;
+}
+
+message GetResponse {
+  repeated Stock stock = 1;
+}

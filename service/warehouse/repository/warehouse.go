@@ -47,18 +47,10 @@ func (r warehouseRepo) Select(ctx context.Context, param *model.SelectWarehouse)
 }
 
 func (r warehouseRepo) Create(ctx context.Context, warehouse *model.Warehouse) error {
-
-	err := r.db.
+	return r.db.
 		WithContext(ctx).
 		Create(warehouse).
 		Error
-
-	if err != nil {
-
-		return err
-	}
-
-	return nil
 }
 
 func (r warehouseRepo) Get(ctx context.Context, param *model.GetWarehouse) (*model.Warehouse, error) {
@@ -81,7 +73,6 @@ func (r warehouseRepo) Get(ctx context.Context, param *model.GetWarehouse) (*mod
 	}
 
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -93,15 +84,8 @@ func (r warehouseRepo) Update(ctx context.Context, warehouse *model.Warehouse) e
 	now := time.Now()
 	warehouse.UpdatedAt = &now
 
-	err := r.db.
+	return r.db.
 		WithContext(ctx).
 		Updates(warehouse).
 		Error
-
-	if err != nil {
-
-		return err
-	}
-
-	return nil
 }

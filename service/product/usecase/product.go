@@ -5,6 +5,8 @@ import (
 	"product/model"
 	"product/repository"
 	"product/usecase/product"
+
+	"github.com/oklog/ulid/v2"
 )
 
 type Product interface {
@@ -14,14 +16,16 @@ type Product interface {
 
 type productUsecase struct {
 	productRepo repository.Product
+	stockRepo   repository.Stock
 }
 
 func NewProduct(
 	productRepo repository.Product,
-
+	stockRepo repository.Stock,
 ) Product {
 	return &productUsecase{
 		productRepo: productRepo,
+		stockRepo:   stockRepo,
 	}
 }
 
@@ -35,20 +39,44 @@ func (s productUsecase) List(ctx context.Context, param *product.ListRequest) ([
 		return nil, err
 	}
 
-	var res = make([]product.Product, 0)
+	var (
+		productRes = make([]product.Product, 0)
+		productIDs []ulid.ULID
+	)
 
 	for _, prd := range products {
-		res = append(res, product.Product{
-			ID:             prd.ID,
-			Slug:           prd.Slug,
-			Name:           prd.Name,
-			AvailableStock: prd.AvailableStock,
-			ReservedStock:  prd.ReservedStock,
-			CreatedAt:      prd.CreatedAt,
+
+		productIDs = append(productIDs, prd.ID)
+
+		productRes = append(productRes, product.Product{
+			ID:        prd.ID,
+			Slug:      prd.Slug,
+			Name:      prd.Name,
+			CreatedAt: prd.CreatedAt,
 		})
 	}
 
-	return res, nil
+	stocks, err := s.stockRepo.Select(ctx, &model.SelectStock{
+		ProductIDs: productIDs,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	stockByID := stocks.ToMap()
+
+	for i, prd := range productRes {
+
+		stock, ok := stockByID[prd.ID]
+		if !ok {
+			continue
+		}
+
+		productRes[i].AvailableStock = stock.AvailableStock
+		productRes[i].ReservedStock = stock.ReservedStock
+	}
+
+	return productRes, nil
 }
 
 func (s productUsecase) Create(ctx context.Context, param *product.CreateRequest) (*product.Product, error) {
@@ -68,11 +96,9 @@ func (s productUsecase) Create(ctx context.Context, param *product.CreateRequest
 	}
 
 	return &product.Product{
-		ID:             prd.ID,
-		Slug:           prd.Slug,
-		Name:           prd.Name,
-		AvailableStock: prd.AvailableStock,
-		ReservedStock:  prd.ReservedStock,
-		CreatedAt:      prd.CreatedAt,
+		ID:        prd.ID,
+		Slug:      prd.Slug,
+		Name:      prd.Name,
+		CreatedAt: prd.CreatedAt,
 	}, nil
 }
