@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "proto_buffer/product";
+
+service ProductService {
+  rpc Get(GetRequest) returns (Product) {}
+  rpc UpdateStock(UpdateStockRequest) returns (Product) {}
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message UpdateStockRequest {
+  string id = 1;
+  uint64 available_stock = 2;
+}
+
+message Product {
+  string id = 1;
+  string slug = 2;
+  string name = 3;
+  uint64 available_stock = 4;
+  uint64 reserved_stock = 5;
+  int64 created_at = 6;
+}
