@@ -46,7 +46,7 @@ func (r warehouseTransferRepo) Create(ctx context.Context, warehouseTransfer *mo
 
 	err := r.db.
 		WithContext(ctx).
-		Create(warehouseTransfer).
+		Create(&warehouseTransfer).
 		Error
 
 	if err != nil {

@@ -111,7 +111,7 @@ func (r productRepo) Create(ctx context.Context, product *model.Product) error {
 
 	err := tx.
 		WithContext(ctx).
-		Create(product).
+		Create(&product).
 		Error
 
 	if err != nil {

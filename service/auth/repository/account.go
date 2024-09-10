@@ -59,7 +59,7 @@ func (r accountRepo) Get(ctx context.Context, param *model.GetAccount) (*model.A
 func (r accountRepo) Create(ctx context.Context, account *model.Account) error {
 	err := r.db.
 		WithContext(ctx).
-		Create(account).
+		Create(&account).
 		Error
 
 	if err != nil {

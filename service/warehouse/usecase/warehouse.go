@@ -77,6 +77,10 @@ func (s warehouseUsecase) Update(ctx context.Context, param *warehouse.UpdateReq
 		return nil, err
 	}
 
+	if existingWarehouse == nil {
+		return nil, model.ErrWarehouseNotFound
+	}
+
 	existingWarehouse.Name = strings.TrimSpace(param.Name)
 
 	existingWarehouse.Status = param.Status

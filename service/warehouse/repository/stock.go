@@ -70,13 +70,13 @@ func (r *stockRepo) Create(ctx context.Context, param *model.CreateStock) error 
 
 	tx := r.db.Begin(&sql.TxOptions{})
 
-	err := tx.Create(param.Stock).Error
+	err := tx.Create(&param.Stock).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	err = tx.Create(param.WarehouseTransfer).Error
+	err = tx.Create(&param.WarehouseTransfer).Error
 	if err != nil {
 		tx.Rollback()
 		return err

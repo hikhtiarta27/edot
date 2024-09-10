@@ -49,7 +49,7 @@ func (r warehouseRepo) Select(ctx context.Context, param *model.SelectWarehouse)
 func (r warehouseRepo) Create(ctx context.Context, warehouse *model.Warehouse) error {
 	return r.db.
 		WithContext(ctx).
-		Create(warehouse).
+		Create(&warehouse).
 		Error
 }
 
@@ -62,6 +62,10 @@ func (r warehouseRepo) Get(ctx context.Context, param *model.GetWarehouse) (*mod
 
 	if !shared.IsZero(param.ID) {
 		q = q.Where("id = ?", param.ID)
+	}
+
+	if param.Status != "" {
+		q = q.Where("status = ?", param.Status)
 	}
 
 	err := q.

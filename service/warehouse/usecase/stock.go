@@ -42,11 +42,16 @@ func (s stockUsecase) Create(ctx context.Context, param *stock.CreateRequest) (*
 		return nil, err
 	}
 
-	_, err = s.warehouseRepo.Get(ctx, &model.GetWarehouse{
-		ID: param.WarehouseID,
+	warehouse, err := s.warehouseRepo.Get(ctx, &model.GetWarehouse{
+		ID:     param.WarehouseID,
+		Status: model.WarehouseActive,
 	})
 	if err != nil {
 		return nil, err
+	}
+
+	if warehouse == nil {
+		return nil, model.ErrWarehouseNotFound
 	}
 
 	stockModel, err := model.NewStock(param.ProductID, param.Stock)

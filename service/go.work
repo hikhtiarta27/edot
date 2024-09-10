@@ -6,4 +6,5 @@ use (
 	./product
 	./warehouse
 	./proto_buffer
+	./shop
 )

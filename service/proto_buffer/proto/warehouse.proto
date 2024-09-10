@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package warehouse;
+
+option go_package = "proto_buffer/warehouse";
+
+service WarehouseService {
+  rpc Get(GetRequest) returns (Warehouse) {}
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message Warehouse {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+	int64 created_at = 4;
+}
