@@ -11,7 +11,6 @@ import (
 
 type Product interface {
 	Get(ctx context.Context, param *model.GetProduct) (*model.Product, error)
-	UpdateStock(ctx context.Context, param *model.UpdateStockProduct) (*model.Product, error)
 }
 
 type productRepo struct {
@@ -36,31 +35,10 @@ func (r productRepo) Get(ctx context.Context, param *model.GetProduct) (*model.P
 	}
 
 	return &model.Product{
-		ID:             ulid.MustParse(productModel.Id),
-		Slug:           productModel.Slug,
-		Name:           productModel.Name,
-		AvailableStock: productModel.AvailableStock,
-		ReservedStock:  productModel.ReservedStock,
-		CreatedAt:      time.Unix(productModel.CreatedAt, 0),
-	}, nil
-}
-
-func (r productRepo) UpdateStock(ctx context.Context, param *model.UpdateStockProduct) (*model.Product, error) {
-	productModel, err := r.productGrpc.UpdateStock(ctx, &product.UpdateStockRequest{
-		Id:             param.ID.String(),
-		AvailableStock: param.AvailableStock,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Product{
-		ID:             ulid.MustParse(productModel.Id),
-		Slug:           productModel.Slug,
-		Name:           productModel.Name,
-		AvailableStock: productModel.AvailableStock,
-		ReservedStock:  productModel.ReservedStock,
-		CreatedAt:      time.Unix(productModel.CreatedAt, 0),
+		ID:        ulid.MustParse(productModel.Id),
+		Slug:      productModel.Slug,
+		Name:      productModel.Name,
+		Price:     productModel.Price,
+		CreatedAt: time.Unix(productModel.CreatedAt, 0),
 	}, nil
 }

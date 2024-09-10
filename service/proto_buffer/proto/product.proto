@@ -17,4 +17,5 @@ message Product {
   string slug = 2;
   string name = 3;
   int64 created_at = 4;
+  uint64 price = 5;
 }

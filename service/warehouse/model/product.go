@@ -7,10 +7,9 @@ import (
 )
 
 type Product struct {
-	ID             ulid.ULID
-	Slug           string
-	Name           string
-	AvailableStock uint64
-	ReservedStock  uint64
-	CreatedAt      time.Time
+	ID        ulid.ULID
+	Slug      string
+	Name      string
+	Price     uint64
+	CreatedAt time.Time
 }

@@ -46,6 +46,7 @@ func (s ProductGrpc) Get(ctx context.Context, param *product.GetRequest) (*produ
 		Id:        productModel.ID.String(),
 		Slug:      productModel.Slug,
 		Name:      productModel.Name,
+		Price:     productModel.Price,
 		CreatedAt: productModel.CreatedAt.Unix(),
 	}, nil
 }

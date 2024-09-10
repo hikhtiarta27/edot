@@ -51,6 +51,7 @@ func (s productUsecase) List(ctx context.Context, param *product.ListRequest) ([
 		productRes = append(productRes, product.Product{
 			ID:        prd.ID,
 			Slug:      prd.Slug,
+			Price:     prd.Price,
 			Name:      prd.Name,
 			CreatedAt: prd.CreatedAt,
 		})
@@ -85,7 +86,7 @@ func (s productUsecase) Create(ctx context.Context, param *product.CreateRequest
 		return nil, err
 	}
 
-	prd, err := model.NewProduct(param.Name)
+	prd, err := model.NewProduct(param.Name, param.Price)
 	if err != nil {
 		return nil, err
 	}

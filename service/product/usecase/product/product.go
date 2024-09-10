@@ -16,13 +16,15 @@ type Product struct {
 	ID             ulid.ULID `json:"id"`
 	Slug           string    `json:"slug"`
 	Name           string    `json:"name"`
+	Price          uint64    `json:"price"`
 	AvailableStock uint64    `json:"available_stock"`
 	ReservedStock  uint64    `json:"reserved_stock"`
 	CreatedAt      time.Time `json:"created_at"`
 }
 
 type CreateRequest struct {
-	Name string `json:"name"`
+	Name  string `json:"name"`
+	Price uint64 `json:"price"`
 }
 
 func (r CreateRequest) Validate() error {
@@ -37,6 +39,20 @@ func (r CreateRequest) Validate() error {
 		return &shared.Error{
 			HttpStatusCode: 400,
 			Message:        "name minimum length is 3",
+		}
+	}
+
+	if err := validation.Validate(r.Price, validation.Required); err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "price required",
+		}
+	}
+
+	if err := validation.Validate(r.Price, validation.Min(1)); err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "price minimum is 1",
 		}
 	}
 
