@@ -7,6 +7,7 @@ option go_package = "proto_buffer/stock";
 service StockService {
   rpc Get(GetRequest) returns (GetResponse) {}
   rpc Create(CreateRequest) returns (Stock) {}
+  rpc ReserveRelease(ReserveReleaseRequest) returns (Stock) {}
 }
 
 message GetRequest {
@@ -29,4 +30,10 @@ message Stock {
 
 message GetResponse {
   repeated Stock stock = 1;
+}
+
+message ReserveReleaseRequest {
+  string action = 1; // release | reserve
+  uint64 qty = 2;
+  string product_id = 3;
 }

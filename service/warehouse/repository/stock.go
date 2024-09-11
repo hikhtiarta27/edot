@@ -3,9 +3,11 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"shared"
 	"warehouse/model"
 
+	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +15,7 @@ type Stock interface {
 	Get(ctx context.Context, param *model.GetStock) (*model.Stock, error)
 	Select(ctx context.Context, param *model.SelectStock) ([]model.Stock, error)
 	Create(ctx context.Context, param *model.CreateStock) error
+	ReserveRelease(ctx context.Context, param *model.ReserveReleaseStock) error
 }
 
 type stockRepo struct {
@@ -83,6 +86,52 @@ func (r *stockRepo) Create(ctx context.Context, param *model.CreateStock) error 
 	}
 
 	tx.Commit()
+
+	return nil
+}
+
+func (r *stockRepo) ReserveRelease(ctx context.Context, param *model.ReserveReleaseStock) error {
+
+	var (
+		rowsAffected int64
+		err          error
+	)
+
+	if param.Action == model.StockRelease {
+		res := r.db.
+			WithContext(ctx).
+			Raw("UPDATE stocks SET available_stock = available_stock + ?, reserved_stock = reserved_stock - ? WHERE id = ? AND reserved_stock - ? >= 0",
+				param.Qty, param.Stock.ID, param.Qty,
+			)
+
+		err = res.Error
+		rowsAffected = res.RowsAffected
+	} else {
+		res := r.db.
+			WithContext(ctx).
+			Raw("UPDATE stocks SET available_stock = available_stock - ?, reserved_stock = reserved_stock + ? WHERE id = ? AND available_stock - ? >= 0",
+				param.Qty, param.Stock.ID, param.Qty,
+			)
+
+		err = res.Error
+		rowsAffected = res.RowsAffected
+	}
+
+	if err != nil {
+
+		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
+			switch mysqlErr.Number {
+			case 1690:
+				return errors.New("insuffient stock")
+			}
+		}
+
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("insuffient stock")
+	}
 
 	return nil
 }

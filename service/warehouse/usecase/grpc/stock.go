@@ -132,3 +132,49 @@ func (s StockGrpc) Create(ctx context.Context, param *stock.CreateRequest) (*sto
 		CreatedAt:      stockModel.CreatedAt.Unix(),
 	}, nil
 }
+
+func (s StockGrpc) ReserveRelease(ctx context.Context, param *stock.ReserveReleaseRequest) (*stock.Stock, error) {
+	productID, err := ulid.Parse(param.ProductId)
+	if err != nil {
+		return nil, model.ErrInvalidUlid
+	}
+
+	_, err = s.productRepo.Get(ctx, &model.GetProduct{
+		ID: productID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	stockModel, err := s.stockRepo.Get(ctx, &model.GetStock{
+		ProductID: productID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.stockRepo.ReserveRelease(ctx, &model.ReserveReleaseStock{
+		Action: model.StockAction(param.Action),
+		Stock:  stockModel,
+		Qty:    param.Qty,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	stockModel, err = s.stockRepo.Get(ctx, &model.GetStock{
+		ID: stockModel.ID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &stock.Stock{
+		Id:             stockModel.ID.String(),
+		ProductId:      stockModel.ProductID.String(),
+		AvailableStock: stockModel.AvailableStock,
+		ReservedStock:  stockModel.ReservedStock,
+		CreatedAt:      stockModel.CreatedAt.Unix(),
+	}, nil
+}

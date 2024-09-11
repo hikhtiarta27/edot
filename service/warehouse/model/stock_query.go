@@ -15,3 +15,9 @@ type CreateStock struct {
 	*Stock
 	*WarehouseTransfer
 }
+
+type ReserveReleaseStock struct {
+	*Stock
+	Action StockAction
+	Qty    uint64
+}

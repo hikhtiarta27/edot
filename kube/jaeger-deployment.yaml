@@ -1,0 +1,66 @@
+# jaeger-deployment.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: observability
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+      - name: jaeger
+        image: jaegertracing/all-in-one:1.41.0  # Specify the Jaeger version here
+        ports:
+        - containerPort: 16686  # Jaeger UI
+        - containerPort: 14250  # gRPC for collectors
+        - containerPort: 6831   # UDP for clients (agent)
+        - containerPort: 5778   # UI debug port
+        - containerPort: 14268  # HTTP for collectors
+        - containerPort: 9411   # Zipkin format
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger
+  namespace: observability
+spec:
+  ports:
+    - port: 16686
+      name: jaeger-ui
+      targetPort: 16686
+    - port: 14250
+      name: jaeger-grpc
+      targetPort: 14250
+    - port: 6831
+      name: jaeger-agent
+      targetPort: 6831
+  selector:
+    app: jaeger
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: observability
+spec:
+  ports:
+    - port: 14268
+      name: jaeger-http-collector
+      targetPort: 14268
+    - port: 9411
+      name: jaeger-zipkin
+      targetPort: 9411
+  selector:
+    app: jaeger

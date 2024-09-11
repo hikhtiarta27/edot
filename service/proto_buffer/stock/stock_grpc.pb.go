@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type StockServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*Stock, error)
+	ReserveRelease(ctx context.Context, in *ReserveReleaseRequest, opts ...grpc.CallOption) (*Stock, error)
 }
 
 type stockServiceClient struct {
@@ -52,12 +53,22 @@ func (c *stockServiceClient) Create(ctx context.Context, in *CreateRequest, opts
 	return out, nil
 }
 
+func (c *stockServiceClient) ReserveRelease(ctx context.Context, in *ReserveReleaseRequest, opts ...grpc.CallOption) (*Stock, error) {
+	out := new(Stock)
+	err := c.cc.Invoke(ctx, "/stock.StockService/ReserveRelease", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StockServiceServer is the server API for StockService service.
 // All implementations must embed UnimplementedStockServiceServer
 // for forward compatibility
 type StockServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	Create(context.Context, *CreateRequest) (*Stock, error)
+	ReserveRelease(context.Context, *ReserveReleaseRequest) (*Stock, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedStockServiceServer) Get(context.Context, *GetRequest) (*GetRe
 }
 func (UnimplementedStockServiceServer) Create(context.Context, *CreateRequest) (*Stock, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedStockServiceServer) ReserveRelease(context.Context, *ReserveReleaseRequest) (*Stock, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReserveRelease not implemented")
 }
 func (UnimplementedStockServiceServer) mustEmbedUnimplementedStockServiceServer() {}
 
@@ -120,6 +134,24 @@ func _StockService_Create_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StockService_ReserveRelease_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReserveReleaseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).ReserveRelease(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/stock.StockService/ReserveRelease",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).ReserveRelease(ctx, req.(*ReserveReleaseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StockService_ServiceDesc is the grpc.ServiceDesc for StockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _StockService_Create_Handler,
+		},
+		{
+			MethodName: "ReserveRelease",
+			Handler:    _StockService_ReserveRelease_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

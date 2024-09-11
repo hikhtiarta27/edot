@@ -69,3 +69,28 @@ CREATE TABLE warehouse_transfers (
     updated_at TIMESTAMP NULL,
     deleted_at TIMESTAMP NULL
 ) ENGINE=InnoDB;
+
+-- ORDERS
+CREATE TABLE orders (
+    id BINARY(16) NOT NULL PRIMARY KEY,
+    total_item INT UNSIGNED NOT NULL,
+    total_price INT UNSIGNED NOT NULL,
+    status VARCHAR(255) NOT NULL, -- PENDING, PAID, EXPIRED
+    expired_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL,
+    deleted_at TIMESTAMP NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE order_details (
+    id BINARY(16) NOT NULL PRIMARY KEY,
+    order_id BINARY(16) NOT NULL,
+    product_id BINARY(16) NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    qty INT UNSIGNED NOT NULL,
+    price INT UNSIGNED NOT NULL,
+    total_price INT UNSIGNED NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL,
+    deleted_at TIMESTAMP NULL
+) ENGINE=InnoDB;

@@ -1,0 +1,71 @@
+# opentelemetry-collector.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-conf
+  namespace: observability
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+    processors:
+      batch:
+    exporters:
+      jaeger:
+        endpoint: jaeger:14250
+        insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [jaeger]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector:latest
+        volumeMounts:
+        - name: otel-collector-config-vol
+          mountPath: /etc/otel-collector-config
+          subPath: otel-collector-config.yaml
+        command:
+          - "--config=/etc/otel-collector-config/otel-collector-config.yaml"
+        ports:
+          - containerPort: 4317 # OTLP gRPC
+          - containerPort: 55681 # OTLP HTTP
+      volumes:
+      - name: otel-collector-config-vol
+        configMap:
+          name: otel-collector-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: observability
+spec:
+  ports:
+    - port: 4317 # OTLP gRPC
+      targetPort: 4317
+    - port: 55681 # OTLP HTTP
+      targetPort: 55681
+  selector:
+    app: otel-collector

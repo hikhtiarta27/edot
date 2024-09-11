@@ -15,6 +15,19 @@ var ErrDuplicateStock = &shared.Error{
 	Message:        "duplicate stock of product",
 }
 
+var ErrInsufficientStock = &shared.Error{
+	HttpStatusCode: 422,
+	GrpcStatusCode: codes.Aborted,
+	Message:        "insufficient stock",
+}
+
+type StockAction string
+
+const (
+	StockRelease = "release"
+	StockReserve = "reserve"
+)
+
 type Stock struct {
 	ID             ulid.ULID
 	ProductID      ulid.ULID
