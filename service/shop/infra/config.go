@@ -20,7 +20,8 @@ type Config struct {
 		Secret string `mapstructure:"secret"`
 	} `mapstructure:"jwt"`
 	App struct {
-		Address string `mapstructure:"address"`
+		Address     string `mapstructure:"address"`
+		GrpcAddress string `mapstructure:"grpc_address"`
 	} `mapstructure:"app"`
 	Service struct {
 		Warehouse string `mapstructure:"warehouse"`

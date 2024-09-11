@@ -30,6 +30,7 @@ type Config struct {
 	} `mapstructure:"meilisearch"`
 	Service struct {
 		Warehouse string `mapstructure:"warehouse"`
+		Shop      string `mapstructure:"shop"`
 	} `mapstructure:"service"`
 }
 

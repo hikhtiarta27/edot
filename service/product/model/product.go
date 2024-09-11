@@ -28,6 +28,7 @@ type Product struct {
 	Slug      string
 	Name      string
 	Price     uint64
+	ShopID    ulid.ULID
 	CreatedAt time.Time
 	UpdatedAt *time.Time
 	DeletedAt gorm.DeletedAt
@@ -40,11 +41,13 @@ func (Product) TableName() string {
 func NewProduct(
 	name string,
 	price uint64,
+	shopID ulid.ULID,
 ) (*Product, error) {
 	instance := &Product{
-		ID:    ulid.Make(),
-		Name:  strings.TrimSpace(name),
-		Price: price,
+		ID:     ulid.Make(),
+		Name:   strings.TrimSpace(name),
+		Price:  price,
+		ShopID: shopID,
 	}
 
 	if err := instance.SetSlug(name); err != nil {

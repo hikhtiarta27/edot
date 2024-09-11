@@ -3,7 +3,6 @@ package v1
 import (
 	"shared"
 	"warehouse/usecase"
-	"warehouse/usecase/stock"
 
 	"github.com/labstack/echo/v4"
 )
@@ -26,17 +25,17 @@ func (d Stock) Mount(group *echo.Group) {
 
 func (d Stock) create(c echo.Context) error {
 
-	req := &stock.CreateRequest{}
+	// req := &stock.CreateRequest{}
 
-	if err := c.Bind(req); err != nil {
-		return shared.FailResponseFromCustomError(c, err)
-	}
+	// if err := c.Bind(req); err != nil {
+	// 	return shared.FailResponseFromCustomError(c, err)
+	// }
 
-	res, err := d.stockUsecase.Create(c.Request().Context(), req)
-	if err != nil {
+	// res, err := d.stockUsecase.Create(c.Request().Context(), req)
+	// if err != nil {
 
-		return shared.FailResponseFromCustomError(c, err)
-	}
+	// 	return shared.FailResponseFromCustomError(c, err)
+	// }
 
-	return shared.SuccessResponse(c, "success create stock", res)
+	return shared.SuccessResponse(c, "deprecated: success create stock", nil)
 }

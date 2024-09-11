@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package shop;
+
+option go_package = "proto_buffer/shop";
+
+service ShopService {
+  rpc Get(GetRequest) returns (Shop) {}
+  rpc Select(SelectRequest) returns (SelectResponse) {}
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message SelectRequest {
+  repeated string id = 1;
+}
+
+message Shop {
+  string id = 1;
+  string name = 2;
+  int64 created_at = 3;
+  repeated string warehouse = 4;
+}
+
+message SelectResponse {
+  repeated Shop shop = 1;
+}

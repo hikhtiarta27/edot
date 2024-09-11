@@ -54,12 +54,23 @@ func (s stockUsecase) Create(ctx context.Context, param *stock.CreateRequest) (*
 		return nil, model.ErrWarehouseNotFound
 	}
 
-	stockModel, err := model.NewStock(param.ProductID, param.Stock)
+	warehouseTransfer, err := model.NewWarehouseTransfer(param.WarehouseID, param.WarehouseID, param.ProductID, param.Stock)
 	if err != nil {
 		return nil, err
 	}
 
-	warehouseTransfer, err := model.NewWarehouseTransfer(param.WarehouseID, param.WarehouseID, param.ProductID, param.Stock)
+	stockModel, err := s.stockRepo.Get(ctx, &model.GetStock{
+		ProductID: param.ProductID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if stockModel != nil {
+		return nil, model.ErrDuplicateStock
+	}
+
+	stockModel, err = model.NewStock(param.ProductID, param.Stock)
 	if err != nil {
 		return nil, err
 	}

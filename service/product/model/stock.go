@@ -16,12 +16,12 @@ type Stock struct {
 
 type Stocks []Stock
 
-func (m Stocks) ToMap() map[ulid.ULID]*Stock {
+func (m Stocks) MapByProductID() map[ulid.ULID]*Stock {
 
 	res := make(map[ulid.ULID]*Stock)
 
 	for _, stock := range m {
-		res[stock.ID] = &stock
+		res[stock.ProductID] = &stock
 	}
 
 	return res

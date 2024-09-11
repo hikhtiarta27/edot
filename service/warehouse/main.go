@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"proto_buffer/stock"
+	"proto_buffer/warehouse"
 	"shared"
 	v1 "warehouse/delivery/v1"
 	"warehouse/infra"
@@ -38,6 +39,7 @@ func main() {
 	)
 
 	stock.RegisterStockServiceServer(grpcSrv, registry.LoadStockGrpc())
+	warehouse.RegisterWarehouseServiceServer(grpcSrv, registry.LoadWarehouseGrpc())
 
 	reflection.Register(grpcSrv)
 

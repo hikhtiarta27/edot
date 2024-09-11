@@ -6,8 +6,20 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-var ErrInvalidShopID = &shared.Error{
+var ErrInvalidUlid = &shared.Error{
 	HttpStatusCode: 400,
 	GrpcStatusCode: codes.InvalidArgument,
-	Message:        "invalid shop id ",
+	Message:        "invalid id",
+}
+
+var ErrShopNotFound = &shared.Error{
+	HttpStatusCode: 400,
+	GrpcStatusCode: codes.NotFound,
+	Message:        "shop not found",
+}
+
+var ErrDuplicateShopWarehouse = &shared.Error{
+	HttpStatusCode: 422,
+	GrpcStatusCode: codes.AlreadyExists,
+	Message:        "shop warehouse already exist",
 }

@@ -11,6 +11,7 @@ import (
 
 type Stock interface {
 	Select(ctx context.Context, param *model.SelectStock) (model.Stocks, error)
+	Create(ctx context.Context, param *model.CreateStock) (*model.Stock, error)
 }
 
 type stockRepo struct {
@@ -54,4 +55,25 @@ func (r stockRepo) Select(ctx context.Context, param *model.SelectStock) (model.
 	}
 
 	return stocks, nil
+}
+
+func (r stockRepo) Create(ctx context.Context, param *model.CreateStock) (*model.Stock, error) {
+
+	res, err := r.stockGrpc.Create(ctx, &stock.CreateRequest{
+		ProductId:   param.ProductID.String(),
+		Stock:       param.Stock,
+		WarehouseId: param.WarehouseID.String(),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Stock{
+		ID:             ulid.MustParse(res.Id),
+		ProductID:      ulid.MustParse(res.ProductId),
+		AvailableStock: res.AvailableStock,
+		ReservedStock:  res.ReservedStock,
+		CreatedAt:      time.Unix(res.CreatedAt, 0),
+	}, nil
 }

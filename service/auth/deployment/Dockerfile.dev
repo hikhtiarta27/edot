@@ -1,0 +1,16 @@
+FROM golang:1.20.2-alpine3.17
+
+RUN apk add --no-cache git curl
+
+COPY ./pb /pb
+
+COPY ./common /common
+
+COPY ./auth-service /app
+
+WORKDIR /app
+
+RUN curl -fLo install.sh https://raw.githubusercontent.com/cosmtrek/air/master/install.sh \
+  && chmod +x install.sh && sh install.sh && cp ./bin/air /bin/air
+
+CMD air

@@ -17,15 +17,18 @@ type Product interface {
 type productUsecase struct {
 	productRepo repository.Product
 	stockRepo   repository.Stock
+	shopRepo    repository.Shop
 }
 
 func NewProduct(
 	productRepo repository.Product,
 	stockRepo repository.Stock,
+	shopRepo repository.Shop,
 ) Product {
 	return &productUsecase{
 		productRepo: productRepo,
 		stockRepo:   stockRepo,
+		shopRepo:    shopRepo,
 	}
 }
 
@@ -64,7 +67,7 @@ func (s productUsecase) List(ctx context.Context, param *product.ListRequest) ([
 		return nil, err
 	}
 
-	stockByID := stocks.ToMap()
+	stockByID := stocks.MapByProductID()
 
 	for i, prd := range productRes {
 
@@ -86,7 +89,28 @@ func (s productUsecase) Create(ctx context.Context, param *product.CreateRequest
 		return nil, err
 	}
 
-	prd, err := model.NewProduct(param.Name, param.Price)
+	shop, err := s.shopRepo.Get(ctx, &model.GetShop{
+		ShopID: param.ShopID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	isShopWarehouseExist := false
+
+	for _, sw := range shop.Warehouse {
+		if sw == param.WarehouseID {
+			isShopWarehouseExist = true
+			break
+		}
+	}
+
+	if !isShopWarehouseExist {
+		return nil, model.ErrShopWarehouseNotFound
+	}
+
+	prd, err := model.NewProduct(param.Name, param.Price, param.ShopID)
 	if err != nil {
 		return nil, err
 	}
@@ -96,10 +120,21 @@ func (s productUsecase) Create(ctx context.Context, param *product.CreateRequest
 		return nil, err
 	}
 
+	_, err = s.stockRepo.Create(ctx, &model.CreateStock{
+		ProductID:   prd.ID,
+		WarehouseID: param.WarehouseID,
+		Stock:       param.Stock,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &product.Product{
 		ID:        prd.ID,
 		Slug:      prd.Slug,
 		Name:      prd.Name,
+		Price:     prd.Price,
 		CreatedAt: prd.CreatedAt,
 	}, nil
 }

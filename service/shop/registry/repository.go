@@ -38,3 +38,18 @@ func LoadWarehouseRepo() repository.Warehouse {
 
 	return warehouseRepo
 }
+
+var (
+	shopWarehouseRepoOnce sync.Once
+	shopWarehouseRepo     repository.ShopWarehouse
+)
+
+func LoadShopWarehouseRepo() repository.ShopWarehouse {
+	shopWarehouseRepoOnce.Do(func() {
+		shopWarehouseRepo = repository.NewShopWarehouse(
+			infra.LoadDB(),
+		)
+	})
+
+	return shopWarehouseRepo
+}

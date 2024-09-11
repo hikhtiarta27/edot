@@ -16,6 +16,7 @@ func LoadProductUsecase() usecase.Product {
 		productUsecase = usecase.NewProduct(
 			LoadProductRepo(),
 			LoadStockRepo(),
+			LoadShopRepo(),
 		)
 	})
 

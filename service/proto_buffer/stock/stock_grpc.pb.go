@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StockServiceClient interface {
 	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
+	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*Stock, error)
 }
 
 type stockServiceClient struct {
@@ -42,11 +43,21 @@ func (c *stockServiceClient) Get(ctx context.Context, in *GetRequest, opts ...gr
 	return out, nil
 }
 
+func (c *stockServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*Stock, error) {
+	out := new(Stock)
+	err := c.cc.Invoke(ctx, "/stock.StockService/Create", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StockServiceServer is the server API for StockService service.
 // All implementations must embed UnimplementedStockServiceServer
 // for forward compatibility
 type StockServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
+	Create(context.Context, *CreateRequest) (*Stock, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedStockServiceServer struct {
 
 func (UnimplementedStockServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedStockServiceServer) Create(context.Context, *CreateRequest) (*Stock, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedStockServiceServer) mustEmbedUnimplementedStockServiceServer() {}
 
@@ -88,6 +102,24 @@ func _StockService_Get_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StockService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/stock.StockService/Create",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).Create(ctx, req.(*CreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StockService_ServiceDesc is the grpc.ServiceDesc for StockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _StockService_Get_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _StockService_Create_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

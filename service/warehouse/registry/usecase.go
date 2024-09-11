@@ -49,8 +49,25 @@ func LoadStockGrpc() *grpc.StockGrpc {
 	stockGrpcOnce.Do(func() {
 		stockGrpc = grpc.NewStock(
 			LoadStockRepo(),
+			LoadProductRepo(),
+			LoadWarehouseRepo(),
 		)
 	})
 
 	return stockGrpc
+}
+
+var (
+	warehouseGrpcOnce sync.Once
+	warehouseGrpc     *grpc.WarehouseGrpc
+)
+
+func LoadWarehouseGrpc() *grpc.WarehouseGrpc {
+	warehouseGrpcOnce.Do(func() {
+		warehouseGrpc = grpc.NewWarehouse(
+			LoadWarehouseRepo(),
+		)
+	})
+
+	return warehouseGrpc
 }

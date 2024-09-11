@@ -30,3 +30,26 @@ func LoadWarehouseService() *grpc.ClientConn {
 
 	return warehouseService
 }
+
+var (
+	shopServiceOnce sync.Once
+	shopService     *grpc.ClientConn
+)
+
+func LoadShopService() *grpc.ClientConn {
+	shopServiceOnce.Do(func() {
+
+		grpcOpt := []grpc.DialOption{
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		}
+
+		shopServiceConn, err := grpc.Dial(LoadConfig().Service.Shop, grpcOpt...)
+		if err != nil {
+			log.Fatalf("failed to connect with shop service: %v", err)
+		}
+
+		shopService = shopServiceConn
+	})
+
+	return shopService
+}

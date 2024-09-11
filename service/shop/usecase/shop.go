@@ -11,20 +11,24 @@ type Shop interface {
 	List(ctx context.Context) ([]shop.Shop, error)
 	Create(ctx context.Context, param *shop.CreateRequest) (*shop.Shop, error)
 	AssignWarehouse(ctx context.Context, param *shop.AssignWarehouseRequest) (*shop.ShopWarehouse, error)
+	Detail(ctx context.Context, param *shop.DetailRequest) (*shop.ShopWarehouse, error)
 }
 
 type shopUsecase struct {
-	shopRepo      repository.Shop
-	warehouseRepo repository.Warehouse
+	shopRepo          repository.Shop
+	shopWarehouseRepo repository.ShopWarehouse
+	warehouseRepo     repository.Warehouse
 }
 
 func NewShop(
 	shopRepo repository.Shop,
+	shopWarehouseRepo repository.ShopWarehouse,
 	warehouseRepo repository.Warehouse,
 ) Shop {
 	return &shopUsecase{
-		shopRepo:      shopRepo,
-		warehouseRepo: warehouseRepo,
+		shopRepo:          shopRepo,
+		warehouseRepo:     warehouseRepo,
+		shopWarehouseRepo: shopWarehouseRepo,
 	}
 }
 
@@ -89,11 +93,14 @@ func (s *shopUsecase) AssignWarehouse(ctx context.Context, param *shop.AssignWar
 	}
 
 	if shopModel == nil {
-		return nil, model.ErrInvalidShopID
+		return nil, model.ErrShopNotFound
 	}
+
+	var shopWarehouses []model.ShopWarehouse
 
 	// validate warehouse id
 	for _, wrh := range param.WarehouseID {
+		// TODO: change to outside for-loop
 		_, err = s.warehouseRepo.Get(ctx, &model.GetWarehouse{
 			ID: wrh,
 		})
@@ -101,6 +108,32 @@ func (s *shopUsecase) AssignWarehouse(ctx context.Context, param *shop.AssignWar
 		if err != nil {
 			return nil, err
 		}
+
+		// TODO: change to outside for-loop
+		shopWarehouse, err := s.shopWarehouseRepo.Get(ctx, &model.GetShopWarehouse{
+			ShopID:      param.ID,
+			WarehouseID: wrh,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		if shopWarehouse != nil {
+			return nil, model.ErrDuplicateShopWarehouse
+		}
+
+		shopWarehouse, err = model.NewShopWarehouse(param.ID, wrh)
+		if err != nil {
+			return nil, err
+		}
+
+		shopWarehouses = append(shopWarehouses, *shopWarehouse)
+	}
+
+	err = s.shopWarehouseRepo.CreateBatch(ctx, shopWarehouses)
+	if err != nil {
+		return nil, err
 	}
 
 	return &shop.ShopWarehouse{
@@ -112,4 +145,46 @@ func (s *shopUsecase) AssignWarehouse(ctx context.Context, param *shop.AssignWar
 		},
 		Warehouse: param.WarehouseID,
 	}, nil
+}
+
+func (s *shopUsecase) Detail(ctx context.Context, param *shop.DetailRequest) (*shop.ShopWarehouse, error) {
+
+	if err := param.Validate(); err != nil {
+		return nil, err
+	}
+
+	shopModel, err := s.shopRepo.Get(ctx, &model.GetShop{
+		ID: param.ID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if shopModel == nil {
+		return nil, model.ErrShopNotFound
+	}
+
+	res := &shop.ShopWarehouse{
+		Shop: &shop.Shop{
+			ID:        shopModel.ID,
+			Name:      shopModel.Name,
+			CreatedAt: shopModel.CreatedAt,
+			UpdatedAt: shopModel.UpdatedAt,
+		},
+	}
+
+	shopWarehouses, err := s.shopWarehouseRepo.Select(ctx, &model.SelectShopWarehouse{
+		ShopID: param.ID,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, shopWarehouse := range shopWarehouses {
+		res.Warehouse = append(res.Warehouse, shopWarehouse.WarehouseID)
+	}
+
+	return res, nil
 }

@@ -123,6 +123,7 @@ func (r productRepo) Create(ctx context.Context, product *model.Product) error {
 	_, err = r.meilisearchClient.Index("products").
 		AddDocumentsWithContext(ctx, product)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 

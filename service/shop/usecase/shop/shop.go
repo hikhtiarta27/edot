@@ -39,7 +39,7 @@ type AssignWarehouseRequest struct {
 }
 
 func (r *AssignWarehouseRequest) Validate() (err error) {
-	if err := validation.Validate(r.WarehouseIDStr, validation.Required, validation.Min(1)); err != nil {
+	if err := validation.Validate(r.WarehouseIDStr, validation.Required, validation.Length(1, 0)); err != nil {
 		return &shared.Error{
 			HttpStatusCode: 400,
 			Message:        "warehouse id required",
@@ -49,7 +49,7 @@ func (r *AssignWarehouseRequest) Validate() (err error) {
 	for _, w := range r.WarehouseIDStr {
 		id, err := ulid.Parse(w)
 		if err != nil {
-			return err
+			return model.ErrInvalidUlid
 		}
 
 		r.WarehouseID = append(r.WarehouseID, id)
@@ -57,7 +57,7 @@ func (r *AssignWarehouseRequest) Validate() (err error) {
 
 	r.ID, err = ulid.Parse(r.IDStr)
 	if err != nil {
-		return model.ErrInvalidShopID
+		return model.ErrInvalidUlid
 	}
 
 	return nil
@@ -66,4 +66,18 @@ func (r *AssignWarehouseRequest) Validate() (err error) {
 type ShopWarehouse struct {
 	*Shop
 	Warehouse []ulid.ULID `json:"warehouse"`
+}
+
+type DetailRequest struct {
+	IDStr string `param:"id"`
+	ID    ulid.ULID
+}
+
+func (r *DetailRequest) Validate() (err error) {
+	r.ID, err = ulid.Parse(r.IDStr)
+	if err != nil {
+		return model.ErrInvalidUlid
+	}
+
+	return nil
 }

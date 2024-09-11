@@ -23,11 +23,16 @@ type Product struct {
 }
 
 type CreateRequest struct {
-	Name  string `json:"name"`
-	Price uint64 `json:"price"`
+	Name           string `json:"name"`
+	Price          uint64 `json:"price"`
+	Stock          uint64 `json:"stock"`
+	ShopIDStr      string `json:"shop_id"`
+	ShopID         ulid.ULID
+	WarehouseIDStr string `json:"warehouse_id"`
+	WarehouseID    ulid.ULID
 }
 
-func (r CreateRequest) Validate() error {
+func (r *CreateRequest) Validate() (err error) {
 	if err := validation.Validate(r.Name, validation.Required); err != nil {
 		return &shared.Error{
 			HttpStatusCode: 400,
@@ -49,10 +54,40 @@ func (r CreateRequest) Validate() error {
 		}
 	}
 
-	if err := validation.Validate(r.Price, validation.Min(1)); err != nil {
+	if err := validation.Validate(r.Stock, validation.Required); err != nil {
 		return &shared.Error{
 			HttpStatusCode: 400,
-			Message:        "price minimum is 1",
+			Message:        "stock required",
+		}
+	}
+
+	if err := validation.Validate(r.ShopIDStr, validation.Required); err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "shop id required",
+		}
+	}
+
+	r.ShopID, err = ulid.Parse(r.ShopIDStr)
+	if err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "invalid shop id",
+		}
+	}
+
+	if err := validation.Validate(r.WarehouseIDStr, validation.Required); err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "shop id required",
+		}
+	}
+
+	r.WarehouseID, err = ulid.Parse(r.WarehouseIDStr)
+	if err != nil {
+		return &shared.Error{
+			HttpStatusCode: 400,
+			Message:        "invalid warehouse id",
 		}
 	}
 

@@ -1,11 +1,19 @@
 package model
 
 import (
+	"shared"
 	"time"
 
 	"github.com/oklog/ulid/v2"
+	"google.golang.org/grpc/codes"
 	"gorm.io/gorm"
 )
+
+var ErrDuplicateStock = &shared.Error{
+	HttpStatusCode: 422,
+	GrpcStatusCode: codes.AlreadyExists,
+	Message:        "duplicate stock of product",
+}
 
 type Stock struct {
 	ID             ulid.ULID
