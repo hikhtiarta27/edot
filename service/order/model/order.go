@@ -38,7 +38,7 @@ func NewOrder(
 	instance := &Order{
 		ID:        ulid.Make(),
 		TotalItem: totalItem,
-		Status:    OrderStatusExpired,
+		Status:    OrderStatusPending,
 	}
 
 	return instance, nil
