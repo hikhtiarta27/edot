@@ -1,11 +1,11 @@
 package main
 
 import (
-	v1 "auth/delivery/v1"
-	"auth/infra"
-	"auth/registry"
 	"context"
 	"log"
+	v1 "order/delivery/v1"
+	"order/infra"
+	"order/registry"
 	"shared"
 
 	"github.com/labstack/echo/v4"
@@ -17,8 +17,8 @@ func main() {
 
 	srv := echo.New()
 
-	accountV1 := v1.NewAccount(registry.LoadAccountUsecase())
-	accountV1.Mount(srv.Group("/v1/account"))
+	orderV1 := v1.NewOrder(registry.LoadOrderUsecase())
+	orderV1.Mount(srv.Group("/v1/order", infra.LoadJWT().Validate()))
 
 	go func() {
 		shutdown.Wait()

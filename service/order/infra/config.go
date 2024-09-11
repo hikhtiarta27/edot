@@ -22,6 +22,10 @@ type Config struct {
 	App struct {
 		Address string `mapstructure:"address"`
 	} `mapstructure:"app"`
+	Service struct {
+		Warehouse string `mapstructure:"warehouse"`
+		Product   string `mapstructure:"product"`
+	} `mapstructure:"service"`
 }
 
 var (

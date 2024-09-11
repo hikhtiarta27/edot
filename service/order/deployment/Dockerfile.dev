@@ -6,7 +6,7 @@ COPY ./pb /pb
 
 COPY ./common /common
 
-COPY ./auth-service /app
+COPY ./order-service /app
 
 WORKDIR /app
 

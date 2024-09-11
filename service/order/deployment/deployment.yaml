@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-deployment
+  name: order-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: auth
+      app: order
   template:
     metadata:
       labels:
-        app: auth
+        app: order
     spec:
       containers:
-      - name: auth-container
-        image: your-registry/auth-service:latest
+      - name: order-container
+        image: your-registry/order-service:latest
         ports:
         - containerPort: 8080
         env:

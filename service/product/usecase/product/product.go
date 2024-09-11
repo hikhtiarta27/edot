@@ -17,6 +17,7 @@ type Product struct {
 	Slug           string    `json:"slug"`
 	Name           string    `json:"name"`
 	Price          uint64    `json:"price"`
+	ShopID         ulid.ULID `json:"shop_id"`
 	AvailableStock uint64    `json:"available_stock"`
 	ReservedStock  uint64    `json:"reserved_stock"`
 	CreatedAt      time.Time `json:"created_at"`

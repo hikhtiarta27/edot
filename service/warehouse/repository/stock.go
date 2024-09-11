@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"shared"
 	"warehouse/model"
 
@@ -100,8 +99,8 @@ func (r *stockRepo) ReserveRelease(ctx context.Context, param *model.ReserveRele
 	if param.Action == model.StockRelease {
 		res := r.db.
 			WithContext(ctx).
-			Raw("UPDATE stocks SET available_stock = available_stock + ?, reserved_stock = reserved_stock - ? WHERE id = ? AND reserved_stock - ? >= 0",
-				param.Qty, param.Stock.ID, param.Qty,
+			Exec("UPDATE stocks SET available_stock = available_stock + ?, reserved_stock = reserved_stock - ? WHERE id = ? AND reserved_stock - ? >= 0",
+				param.Qty, param.Qty, param.Stock.ID, param.Qty,
 			)
 
 		err = res.Error
@@ -109,8 +108,8 @@ func (r *stockRepo) ReserveRelease(ctx context.Context, param *model.ReserveRele
 	} else {
 		res := r.db.
 			WithContext(ctx).
-			Raw("UPDATE stocks SET available_stock = available_stock - ?, reserved_stock = reserved_stock + ? WHERE id = ? AND available_stock - ? >= 0",
-				param.Qty, param.Stock.ID, param.Qty,
+			Exec("UPDATE stocks SET available_stock = available_stock - ?, reserved_stock = reserved_stock + ? WHERE id = ? AND available_stock - ? >= 0",
+				param.Qty, param.Qty, param.Stock.ID, param.Qty,
 			)
 
 		err = res.Error
@@ -122,7 +121,7 @@ func (r *stockRepo) ReserveRelease(ctx context.Context, param *model.ReserveRele
 		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
 			switch mysqlErr.Number {
 			case 1690:
-				return errors.New("insuffient stock")
+				return model.ErrInsufficientStock
 			}
 		}
 
@@ -130,7 +129,7 @@ func (r *stockRepo) ReserveRelease(ctx context.Context, param *model.ReserveRele
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("insuffient stock")
+		return model.ErrInsufficientStock
 	}
 
 	return nil

@@ -57,6 +57,7 @@ func (s productUsecase) List(ctx context.Context, param *product.ListRequest) ([
 			Price:     prd.Price,
 			Name:      prd.Name,
 			CreatedAt: prd.CreatedAt,
+			ShopID:    prd.ShopID,
 		})
 	}
 
