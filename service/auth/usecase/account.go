@@ -32,6 +32,9 @@ func NewAccount(
 
 func (s *accountUsecase) Login(ctx context.Context, param *account.LoginRequest) (*account.LoginResponse, error) {
 
+	ctx, parentSpan := tracer.Start(ctx, "accountUsecase.login")
+	defer parentSpan.End()
+
 	if err := param.Validate(); err != nil {
 		return nil, err
 	}

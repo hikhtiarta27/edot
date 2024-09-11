@@ -27,13 +27,16 @@ func (d Account) Mount(group *echo.Group) {
 
 func (d Account) login(c echo.Context) error {
 
+	ctx, parentSpan := tracer.Start(c.Request().Context(), "Account.login")
+	defer parentSpan.End()
+
 	req := &account.LoginRequest{}
 
 	if err := c.Bind(req); err != nil {
 		return shared.FailResponseFromCustomError(c, err)
 	}
 
-	res, err := d.accountUsecase.Login(c.Request().Context(), req)
+	res, err := d.accountUsecase.Login(ctx, req)
 	if err != nil {
 		return shared.FailResponseFromCustomError(c, err)
 	}

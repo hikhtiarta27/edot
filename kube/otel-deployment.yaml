@@ -16,7 +16,8 @@ data:
     exporters:
       jaeger:
         endpoint: jaeger:14250
-        insecure: true
+        tls:
+          insecure: true
     service:
       pipelines:
         traces:
@@ -41,12 +42,12 @@ spec:
     spec:
       containers:
       - name: otel-collector
-        image: otel/opentelemetry-collector:latest
+        image: otel/opentelemetry-collector-contrib:0.74.0
         volumeMounts:
         - name: otel-collector-config-vol
-          mountPath: /etc/otel-collector-config
+          mountPath: /etc/otel-collector-config/otel-collector-config.yaml
           subPath: otel-collector-config.yaml
-        command:
+        args:
           - "--config=/etc/otel-collector-config/otel-collector-config.yaml"
         ports:
           - containerPort: 4317 # OTLP gRPC
@@ -64,8 +65,10 @@ metadata:
 spec:
   ports:
     - port: 4317 # OTLP gRPC
+      name: otel-grpc
       targetPort: 4317
     - port: 55681 # OTLP HTTP
+      name: otel-http
       targetPort: 55681
   selector:
     app: otel-collector

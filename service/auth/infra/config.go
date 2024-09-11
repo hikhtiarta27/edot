@@ -22,6 +22,9 @@ type Config struct {
 	App struct {
 		Address string `mapstructure:"address"`
 	} `mapstructure:"app"`
+	Telemetry struct {
+		Otlp string `mapstructure:"otlp"`
+	} `mapstructure:"telemetry"`
 }
 
 var (

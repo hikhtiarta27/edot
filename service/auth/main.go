@@ -15,6 +15,8 @@ func main() {
 
 	shutdown := shared.NewGracefullShutdown()
 
+	tracerProvider := infra.LoadTraceProvider()
+
 	srv := echo.New()
 
 	accountV1 := v1.NewAccount(registry.LoadAccountUsecase())
@@ -26,6 +28,11 @@ func main() {
 		err := srv.Shutdown(context.Background())
 		if err != nil {
 			log.Fatalf("failed to shutdown the server: %v", err)
+		}
+
+		err = tracerProvider.Close()
+		if err != nil {
+			log.Fatalf("failed to shutdown tracer provider: %v", err)
 		}
 	}()
 
