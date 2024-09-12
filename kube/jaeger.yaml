@@ -1,14 +1,8 @@
-# jaeger-deployment.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: observability
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: jaeger
-  namespace: observability
+  namespace: edot
 spec:
   replicas: 2
   selector:
@@ -34,7 +28,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaeger
-  namespace: observability
+  namespace: edot
 spec:
   type: ClusterIP
   ports:
@@ -54,7 +48,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: jaeger-collector
-  namespace: observability
+  namespace: edot
 spec:
   ports:
     - port: 14268
