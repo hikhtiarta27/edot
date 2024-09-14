@@ -22,6 +22,7 @@ func NewOrder(
 
 func (d Order) Mount(group *echo.Group) {
 	group.POST("", d.create)
+	group.GET("/release", d.release)
 }
 
 func (d Order) create(c echo.Context) error {
@@ -38,4 +39,14 @@ func (d Order) create(c echo.Context) error {
 	}
 
 	return shared.SuccessResponse(c, "success create order", res)
+}
+
+func (d Order) release(c echo.Context) error {
+
+	err := d.orderUsecase.Release(c.Request().Context())
+	if err != nil {
+		return shared.FailResponseFromCustomError(c, err)
+	}
+
+	return shared.SuccessResponse(c, "success release order", nil)
 }

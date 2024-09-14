@@ -12,6 +12,7 @@ import (
 type Order interface {
 	Get(ctx context.Context, param *model.GetOrder) (*model.Order, error)
 	Create(ctx context.Context, order *model.Order) error
+	Update(ctx context.Context, tx *gorm.DB, order *model.Order) error
 }
 
 type orderRepo struct {
@@ -111,4 +112,11 @@ func (r orderRepo) Create(ctx context.Context, order *model.Order) (err error) {
 
 	tx.Commit()
 	return nil
+}
+
+func (r orderRepo) Update(ctx context.Context, tx *gorm.DB, order *model.Order) error {
+	return tx.
+		WithContext(ctx).
+		Updates(&order).
+		Error
 }

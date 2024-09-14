@@ -18,6 +18,11 @@ func main() {
 	tracerProvider := infra.LoadTraceProvider()
 
 	srv := echo.New()
+	srv.GET("/ping", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{
+			"message": "Everything's fine",
+		})
+	})
 
 	accountV1 := v1.NewAccount(registry.LoadAccountUsecase())
 	accountV1.Mount(srv.Group("/v1/account"))

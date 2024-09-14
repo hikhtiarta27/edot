@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warehouse-deployment
+  namespace: warehouse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: warehouse
+  template:
+    metadata:
+      labels:
+        app: warehouse
+    spec:
+      containers:
+      - name: warehouse-container
+        imagePullPolicy: Never
+        image: warehouse-service:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 9090
+        volumeMounts:
+          - name: config-vol
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+      volumes:
+        - name: config-vol
+          configMap:
+            name: warehouse-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warehouse-service
+  namespace: warehouse
+spec:
+  selector:
+    app: warehouse
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      name: grpc
+  type: ClusterIP

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: otel-collector-conf
-  namespace: edot
+  namespace: tools
 data:
   otel-collector-config.yaml: |
     receivers:
@@ -28,7 +28,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: otel-collector
-  namespace: edot
+  namespace: tools
 spec:
   replicas: 1
   selector:
@@ -60,7 +60,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: otel-collector
-  namespace: edot
+  namespace: tools
 spec:
   ports:
     - port: 4317 # OTLP gRPC
@@ -71,3 +71,4 @@ spec:
       targetPort: 55681
   selector:
     app: otel-collector
+  type: ClusterIP

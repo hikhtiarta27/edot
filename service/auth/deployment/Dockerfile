@@ -2,13 +2,21 @@ FROM golang:1.23.1-alpine3.20 AS builder
 
 WORKDIR /app
 
-COPY ../go.mod ../go.sum ./
+COPY shared /app/shared
+
+COPY proto_buffer /app/proto_buffer
+
+COPY auth /app/auth
+
+WORKDIR /app/auth
+
+RUN go mod tidy
 
 RUN go mod download
 
-COPY ../. .
+WORKDIR /app/auth
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin .
+RUN CGO_ENABLED=0 go build -o /app/bin .
 
 FROM alpine:latest
 

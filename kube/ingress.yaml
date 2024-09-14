@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: edot.com
+      http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
+          # - path: /order
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: order-service
+          #       port:
+          #         number: 80
+          # - path: /warehouse
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: warehouse-service
+          #       port:
+          #         number: 80

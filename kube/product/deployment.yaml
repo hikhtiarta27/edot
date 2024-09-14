@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-deployment
+  namespace: product
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+      - name: product-container
+        imagePullPolicy: Never
+        image: product-service:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 9090
+        volumeMounts:
+          - name: config-vol
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+      volumes:
+        - name: config-vol
+          configMap:
+            name: product-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: product
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      name: grpc
+  type: ClusterIP

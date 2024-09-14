@@ -80,7 +80,7 @@ func (r *CreateRequest) Validate() (err error) {
 	if err := validation.Validate(r.WarehouseIDStr, validation.Required); err != nil {
 		return &shared.Error{
 			HttpStatusCode: 400,
-			Message:        "shop id required",
+			Message:        "warehouse id required",
 		}
 	}
 

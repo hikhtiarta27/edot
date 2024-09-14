@@ -15,6 +15,7 @@ CREATE TABLE products (
     slug VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
     price INT UNSIGNED NOT NULL,
+    shop_id BINARY(16) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
     deleted_at TIMESTAMP NULL

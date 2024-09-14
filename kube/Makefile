@@ -1,20 +1,34 @@
-config-app:
-	kubectl create configmap auth-config --from-file=../service/auth/config.yaml
-	kubectl create configmap auth-config --from-file=../service/auth/config.yaml
-	kubectl create configmap product-config --from-file=../service/product/config.yaml
-	kubectl create configmap warehouse-config --from-file=../service/warehouse/config.yaml
-	kubectl create configmap order-config --from-file=../service/order/config.yaml
-	kubectl create configmap shop-config --from-file=../service/shop/config.yaml
-
 observability:
+	kubectl apply -f tools-namespace.yaml
+	kubectl create configmap config-default --from-file=./config -n tools
 	kubectl apply -f jaeger.yaml
 	kubectl apply -f otel.yaml
 
-storage:
-	kubectl apply -f mysql.yaml
-	kubectl apply -f redis.yaml
+cron:
+	kubectl apply -f cron.yaml
 
-config:
-	kubectl create configmap config-default --from-file=./config -n edot
+run: observability
 
-run: storage observability
+deploy-auth:
+	kubectl apply -f auth/namespace.yaml
+	kubectl create configmap auth-config --from-file=auth/config.yaml -n auth
+	kubectl apply -f auth/storage.yaml
+	kubectl apply -f auth/deployment.yaml
+
+deploy-product:
+	kubectl apply -f product/namespace.yaml
+	kubectl create configmap product-config --from-file=product/config.yaml -n product
+	kubectl apply -f product/storage.yaml
+	kubectl apply -f product/deployment.yaml
+
+deploy-shop:
+	kubectl apply -f shop/namespace.yaml
+	kubectl create configmap shop-config --from-file=shop/config.yaml -n shop
+	kubectl apply -f shop/storage.yaml
+	kubectl apply -f shop/deployment.yaml
+
+deploy-warehouse:
+	kubectl apply -f warehouse/namespace.yaml
+	kubectl create configmap warehouse-config --from-file=warehouse/config.yaml -n warehouse
+	kubectl apply -f warehouse/storage.yaml
+	kubectl apply -f warehouse/deployment.yaml

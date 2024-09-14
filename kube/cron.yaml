@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: http-request-cronjob
+  namespace: tools
+spec:
+  schedule: "* * * * *"  # Runs every 5 minutes
+  concurrencyPolicy: Forbid  # Prevents new job if the previous one is still running
+  jobTemplate:
+    spec:
+      completions: 1  # Ensures only one completion (1 replica of the job)
+      parallelism: 1  # Ensures only one Pod is running at a time
+      template:
+        spec:
+          containers:
+          - name: http-request
+            image: curlimages/curl:latest
+            args:
+            - /bin/sh
+            - -c
+            - |
+              curl -X GET "https://0dd6-103-150-113-27.ngrok-free.app/ping"
+          restartPolicy: OnFailure

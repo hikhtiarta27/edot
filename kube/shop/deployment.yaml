@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-deployment
+  namespace: shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shop
+  template:
+    metadata:
+      labels:
+        app: shop
+    spec:
+      containers:
+      - name: shop-container
+        imagePullPolicy: Never
+        image: shop-service:latest
+        ports:
+        - containerPort: 8080
+        - containerPort: 9090
+        volumeMounts:
+          - name: config-vol
+            mountPath: /app/config.yaml
+            subPath: config.yaml
+      volumes:
+        - name: config-vol
+          configMap:
+            name: shop-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-service
+  namespace: shop
+spec:
+  selector:
+    app: shop
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: http
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      name: grpc
+  type: ClusterIP

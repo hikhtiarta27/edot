@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"order/infra"
 	"order/usecase"
 	"sync"
 )
@@ -15,6 +16,10 @@ func LoadOrderUsecase() usecase.Order {
 		orderUsecase = usecase.NewOrder(
 			LoadOrderRepo(),
 			LoadProductRepo(),
+			infra.LoadRedis(),
+			LoadStockRepo(),
+			LoadOrderDetailRepo(),
+			LoadTxRepo(),
 		)
 	})
 

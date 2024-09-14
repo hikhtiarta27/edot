@@ -72,3 +72,18 @@ func LoadStockRepo() repository.Stock {
 
 	return stockRepo
 }
+
+var (
+	txRepoOnce sync.Once
+	txRepo     repository.Tx
+)
+
+func LoadTxRepo() repository.Tx {
+	txRepoOnce.Do(func() {
+		txRepo = repository.NewTx(
+			infra.LoadDB(),
+		)
+	})
+
+	return txRepo
+}
