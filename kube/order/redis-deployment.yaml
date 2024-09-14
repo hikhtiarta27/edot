@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: tools
+  namespace: order
   labels:
     app: redis
 spec:
@@ -16,9 +16,9 @@ spec:
         app: redis
     spec:
       volumes:
-        - name: config-default-vol
+        - name: config-redis
           configMap:
-            name: config-default
+            name: order-redis-config
       containers:
         - name: redis
           image: redis:7.0.10-alpine
@@ -28,7 +28,7 @@ spec:
             - redis-server
             - /etc/config/redis.conf
           volumeMounts:
-          - name: config-default-vol
+          - name: config-redis
             mountPath: /etc/config/redis.conf
             subPath: redis.conf
           resources:
@@ -53,7 +53,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
-  namespace: tools
+  namespace: order
   labels:
     app: redis
 spec:

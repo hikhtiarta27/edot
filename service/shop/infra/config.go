@@ -26,6 +26,9 @@ type Config struct {
 	Service struct {
 		Warehouse string `mapstructure:"warehouse"`
 	} `mapstructure:"service"`
+	Telemetry struct {
+		Otlp string `mapstructure:"otlp"`
+	} `mapstructure:"telemetry"`
 }
 
 var (

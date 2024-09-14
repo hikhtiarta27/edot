@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"shared"
+	"shared/telemetry"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,6 +19,7 @@ func main() {
 	tracerProvider := infra.LoadTraceProvider()
 
 	srv := echo.New()
+	srv.Use(telemetry.HttpOtel("auth"))
 	srv.GET("/ping", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{
 			"message": "Everything's fine",

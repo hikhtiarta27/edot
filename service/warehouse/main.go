@@ -8,11 +8,13 @@ import (
 	"proto_buffer/stock"
 	"proto_buffer/warehouse"
 	"shared"
+	"shared/telemetry"
 	v1 "warehouse/delivery/v1"
 	"warehouse/infra"
 	"warehouse/registry"
 
 	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -21,7 +23,10 @@ func main() {
 
 	shutdown := shared.NewGracefullShutdown()
 
+	tracerProvider := infra.LoadTraceProvider()
+
 	srv := echo.New()
+	srv.Use(telemetry.HttpOtel("warehouse"))
 
 	warehouseV1 := v1.NewWarehouse(registry.LoadWarehouseUsecase())
 	warehouseV1.Mount(srv.Group("/v1/warehouse", infra.LoadJWT().Validate()))
@@ -32,9 +37,11 @@ func main() {
 	grpcSrv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			shared.GrpcUnaryParser(),
+			otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			shared.GrpcStreamParser(),
+			otelgrpc.StreamServerInterceptor(),
 		),
 	)
 
@@ -77,5 +84,10 @@ func main() {
 	}
 
 	grpcSrv.GracefulStop()
+
+	err = tracerProvider.Close()
+	if err != nil {
+		log.Fatalf("failed to shutdown tracer provider: %v", err)
+	}
 
 }

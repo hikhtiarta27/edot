@@ -32,6 +32,9 @@ type Config struct {
 		Password string `mapstructure:"password"`
 		DB       int    `mapstructure:"db"`
 	} `mapstructure:"redis"`
+	Telemetry struct {
+		Otlp string `mapstructure:"otlp"`
+	} `mapstructure:"telemetry"`
 }
 
 var (

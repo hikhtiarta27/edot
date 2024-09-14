@@ -7,6 +7,7 @@ import (
 	"order/infra"
 	"order/registry"
 	"shared"
+	"shared/telemetry"
 
 	"github.com/labstack/echo/v4"
 )
@@ -15,7 +16,10 @@ func main() {
 
 	shutdown := shared.NewGracefullShutdown()
 
+	tracerProvider := infra.LoadTraceProvider()
+
 	srv := echo.New()
+	srv.Use(telemetry.HttpOtel("order"))
 
 	orderV1 := v1.NewOrder(registry.LoadOrderUsecase())
 	orderV1.Mount(srv.Group("/v1/order", infra.LoadJWT().Validate()))
@@ -26,6 +30,11 @@ func main() {
 		err := srv.Shutdown(context.Background())
 		if err != nil {
 			log.Fatalf("failed to shutdown the server: %v", err)
+		}
+
+		err = tracerProvider.Close()
+		if err != nil {
+			log.Fatalf("failed to shutdown tracer provider: %v", err)
 		}
 	}()
 

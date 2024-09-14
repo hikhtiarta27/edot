@@ -10,8 +10,10 @@ import (
 	"product/registry"
 	"proto_buffer/product"
 	"shared"
+	"shared/telemetry"
 
 	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -20,16 +22,22 @@ func main() {
 
 	shutdown := shared.NewGracefullShutdown()
 
+	tracerProvider := infra.LoadTraceProvider()
+
 	srv := echo.New()
+	srv.Use(telemetry.HttpOtel("product"))
+
 	productV1 := v1.NewProduct(registry.LoadProductUsecase())
 	productV1.Mount(srv.Group("/v1/product", infra.LoadJWT().Validate()))
 
 	grpcSrv := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			shared.GrpcUnaryParser(),
+			otelgrpc.UnaryServerInterceptor(),
 		),
 		grpc.ChainStreamInterceptor(
 			shared.GrpcStreamParser(),
+			otelgrpc.StreamServerInterceptor(),
 		),
 	)
 
@@ -71,5 +79,10 @@ func main() {
 	}
 
 	grpcSrv.GracefulStop()
+
+	err = tracerProvider.Close()
+	if err != nil {
+		log.Fatalf("failed to shutdown tracer provider: %v", err)
+	}
 
 }
